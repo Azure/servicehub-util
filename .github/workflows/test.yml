@@ -1,0 +1,32 @@
+name: Run Unit Tests
+
+on: [pull_request]
+
+permissions:
+  contents: read  # Grants read-only access to repository contents at the workflow level
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read  # Allows the job to read metadata about actions used in the workflow
+      contents: read  # Ensures the job can read repository contents
+      security-events: write  # Grants permission to upload security-related reports (e.g., SARIF for CodeQL)
+
+    strategy:
+      matrix:
+        go-version: [1.22.x]
+    steps:
+    ## sets up go based on the version
+    - name: Install Go
+      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5.4.0
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    ## checks out our code locally so we can work with the files
+    - name: Checkout code
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+    
+    ## runs go test ./...
+    - name: Test
+      run: go test ./...
